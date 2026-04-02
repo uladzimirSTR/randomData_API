@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS {{ .Schema }}.{{ .TableName }} (
+{{- range $i, $col := .Columns }}
+    {{- if $i }},{{ end }}
+    {{ $col.Name }} {{ $col.Type }}
+    {{- if $col.NotNull }} NOT NULL{{ end }}
+    {{- if $col.Default }} DEFAULT {{ $col.Default }}{{ end }}
+{{- end }}
+{{- if .PrimaryKey }},
+    PRIMARY KEY (
+        {{- range $i, $pk := .PrimaryKey -}}
+            {{- if $i }}, {{ end -}}{{ $pk }}
+        {{- end -}}
+    )
+{{- end }}
+);
