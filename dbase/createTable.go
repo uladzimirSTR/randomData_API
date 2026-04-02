@@ -12,7 +12,7 @@ func CreateTable(
 	columns []Column,
 	primaryKey []string,
 ) {
-	query, err := RenderCreateTableSQL("./templates/create_table.sql.tmpl", TableTemplateData{
+	query, err := RenderTemplateFromFile("./templates/create_table.sql.tmpl", TableTemplateData{
 		Schema:     schema,
 		TableName:  table,
 		Columns:    columns,

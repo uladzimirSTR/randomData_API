@@ -1,0 +1,12 @@
+INSERT INTO {{ .Schema }}.{{ .TableName }} (
+    id,
+    email,
+    name,
+    created_at,
+    updated_at
+)
+VALUES
+{{- range $i, $row := .Rows }}
+    {{- if $i }},{{ end }}
+    ({{ $row }})
+{{- end }};

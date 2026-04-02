@@ -13,3 +13,9 @@ type TableTemplateData struct {
 	Columns    []Column
 	PrimaryKey []string
 }
+
+type InsertTemplateData struct {
+	Schema    string
+	TableName string
+	Rows      []string
+}

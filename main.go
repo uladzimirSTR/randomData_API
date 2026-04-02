@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	db "github.com/uladzimirSTR/randomData_API/dbase"
+	rnd "github.com/uladzimirSTR/randomData_API/randomData"
 )
 
 func main() {
@@ -20,4 +22,6 @@ func main() {
 		{Name: "updated_at", Type: "TIMESTAMP", NotNull: true, Default: "NOW()"},
 	}, []string{"id"})
 
+	users := rnd.GenerateRandomUsers()
+	fmt.Printf("%+v\n", users)
 }
