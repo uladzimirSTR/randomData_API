@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -22,15 +21,10 @@ func ExecuteSQL(ctx context.Context, query string) error {
 		return fmt.Errorf("ping database: %w", err)
 	}
 
-	sqlText := strings.TrimSpace(string(query))
+	log.Printf("executing: %s", query)
 
-	log.Printf("executing: %s", sqlText)
-	if sqlText == "" {
-		return fmt.Errorf("trim query: %w", err)
-	}
-
-	if _, err := pool.Exec(ctx, sqlText); err != nil {
-		return fmt.Errorf("execute %s: %w", sqlText, err)
+	if _, err := pool.Exec(ctx, query); err != nil {
+		return fmt.Errorf("execute %s: %w", query, err)
 	}
 
 	log.Println("all sql files executed successfully")

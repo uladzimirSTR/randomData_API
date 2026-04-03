@@ -1,40 +1,28 @@
 package dbase
 
 import (
+	"context"
 	"fmt"
-	"strings"
+	"log"
 
 	randomdata "github.com/uladzimirSTR/randomData_API/randomData"
 )
 
-func BuildUsersInsertQuery(
-	templatePath string,
+func InsertUsers(
+	ctx context.Context,
 	schema string,
 	tableName string,
 	users []randomdata.User,
-) (string, []any, error) {
+) {
 	if len(users) == 0 {
-		return "", nil, fmt.Errorf("users slice is empty")
+		log.Fatalf("users slice is empty")
 	}
 
-	args := make([]any, 0, len(users)*5)
 	rows := make([]string, 0, len(users))
-
-	placeholder := 1
 
 	for _, user := range users {
 		row := fmt.Sprintf(
-			"$%d, $%d, $%d, $%d, $%d",
-			placeholder,
-			placeholder+1,
-			placeholder+2,
-			placeholder+3,
-			placeholder+4,
-		)
-
-		rows = append(rows, row)
-
-		args = append(args,
+			"%d, '%s', '%s', '%s', '%s'",
 			user.ID,
 			user.Email,
 			user.Name,
@@ -42,7 +30,7 @@ func BuildUsersInsertQuery(
 			user.UpdatedAt,
 		)
 
-		placeholder += 5
+		rows = append(rows, row)
 	}
 
 	data := InsertTemplateData{
@@ -51,18 +39,12 @@ func BuildUsersInsertQuery(
 		Rows:      rows,
 	}
 
-	query, err := RenderTemplateFromFile(templatePath, data)
+	query, err := RenderTemplateFromFile("./templates/insert_users.sql.tmpl", data)
 	if err != nil {
-		return "", nil, err
+		log.Fatalf("render template: %v", err)
 	}
 
-	return query, args, nil
-}
-
-func NormalizeRows(rows []string) []string {
-	out := make([]string, 0, len(rows))
-	for _, row := range rows {
-		out = append(out, strings.TrimSpace(row))
+	if err := ExecuteSQL(ctx, query); err != nil {
+		log.Fatalf("migration failed: %v", err)
 	}
-	return out
 }

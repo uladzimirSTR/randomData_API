@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	db "github.com/uladzimirSTR/randomData_API/dbase"
@@ -23,5 +22,7 @@ func main() {
 	}, []string{"id"})
 
 	users := rnd.GenerateRandomUsers()
-	fmt.Printf("%+v\n", users)
+	// fmt.Printf("%+v\n", users)
+
+	db.InsertUsers(ctx, "random_data", "users", users)
 }
