@@ -21,12 +21,12 @@ func ExecuteSQL(ctx context.Context, query string) error {
 		return fmt.Errorf("ping database: %w", err)
 	}
 
-	log.Printf("executing: %s", query)
+	// log.Printf("executing: %s", query)
 
 	if _, err := pool.Exec(ctx, query); err != nil {
 		return fmt.Errorf("execute %s: %w", query, err)
 	}
 
-	log.Println("all sql files executed successfully")
+	log.Println("query executed successfully")
 	return nil
 }

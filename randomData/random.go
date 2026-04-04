@@ -1,6 +1,7 @@
 package randomdata
 
 import (
+	"log"
 	"math/rand"
 	"time"
 )
@@ -19,12 +20,13 @@ func GenerateRandomUser() User {
 	}
 }
 
-func GenerateRandomUsers() []User {
-	count := rand.Intn(100_0) + 1
-
+func GenerateRandomUsers(count int) []User {
 	users := make([]User, count)
 	for i := 0; i < count; i++ {
 		users[i] = GenerateRandomUser()
 	}
+
+	time.Sleep(time.Duration(rand.Intn(10)) * time.Second) // Simulate some processing time
+	log.Printf("Generated %d random users\n", count)
 	return users
 }
