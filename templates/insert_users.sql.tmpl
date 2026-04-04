@@ -9,4 +9,9 @@ VALUES
 {{- range $i, $row := .Rows }}
     {{- if $i }},{{ end }}
     ({{ $row }})
-{{- end }};
+{{- end }}
+ON CONFLICT (id)
+DO UPDATE SET
+    email = EXCLUDED.email,
+    name = EXCLUDED.name,
+    updated_at = EXCLUDED.updated_at;
