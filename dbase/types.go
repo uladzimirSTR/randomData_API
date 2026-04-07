@@ -19,3 +19,11 @@ type InsertTemplateData struct {
 	TableName string
 	Rows      []string
 }
+
+type SelectTemplateData struct {
+	Schema    string
+	TableName string
+	DateType  any
+	Start     any
+	End       any
+}

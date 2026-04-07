@@ -1,0 +1,21 @@
+SELECT
+    id, email, name,
+    cast(created_at as varchar) as created_at,
+    cast(updated_at as varchar) as updated_at
+FROM {{ .Schema }}.{{ .TableName }}
+
+{{- $dateType := "created_at" }}
+{{- if eq .DateType "updated_at" }}
+    {{- $dateType = "updated_at" }}
+{{- end }}
+
+{{- if and .Start .End }}
+WHERE CAST({{ $dateType }} as DATE) BETWEEN '{{ .Start }}' AND '{{ .End }}'
+
+{{- else if .Start }}
+WHERE CAST({{ $dateType }} as DATE) >= '{{ .Start }}'
+
+{{- else if .End }}
+WHERE CAST({{ $dateType }} as DATE) <= '{{ .End }}'
+
+{{- end }}

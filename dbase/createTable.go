@@ -2,16 +2,23 @@ package dbase
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func CreateTable(
-	ctx context.Context,
+	pool *pgxpool.Pool,
 	table string,
 	schema string,
 	columns []Column,
 	primaryKey []string,
 ) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	query, err := RenderTemplateFromFile("./templates/create_table.sql.tmpl", TableTemplateData{
 		Schema:     schema,
 		TableName:  table,
@@ -19,12 +26,16 @@ func CreateTable(
 		PrimaryKey: primaryKey,
 	})
 
-	if err != nil {
-		log.Fatalf("render template: %v", err)
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatalf("ping database: %v", err)
 	}
 
-	if err := ExecuteSQL(ctx, query); err != nil {
+	tag, err := pool.Exec(ctx, query)
+
+	if err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
+
+	fmt.Printf("table %s.%s created successfully, affected rows: %d\n", schema, table, tag.RowsAffected())
 
 }

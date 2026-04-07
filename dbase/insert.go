@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	randomdata "github.com/uladzimirSTR/randomData_API/randomData"
 )
 
 func InsertUsers(
-	ctx context.Context,
+	pool *pgxpool.Pool,
 	schema string,
 	tableName string,
 	users []randomdata.User,
@@ -17,6 +19,9 @@ func InsertUsers(
 	if len(users) == 0 {
 		log.Fatalf("users slice is empty")
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	rows := make([]string, 0, len(users))
 
@@ -44,7 +49,15 @@ func InsertUsers(
 		log.Fatalf("render template: %v", err)
 	}
 
-	if err := ExecuteSQL(ctx, query); err != nil {
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatalf("ping database: %v", err)
+	}
+
+	tag, err := pool.Exec(ctx, query)
+
+	if err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
+
+	fmt.Printf("users inserted successfully, affected rows: %d\n", tag.RowsAffected())
 }
