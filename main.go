@@ -2,59 +2,55 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
-	"math/rand"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	db "github.com/uladzimirSTR/randomData_API/dbase"
 	rnd "github.com/uladzimirSTR/randomData_API/randomData"
-	wp "github.com/uladzimirSTR/randomData_API/workerPool"
 )
 
 const TIME_WORK = 5 * time.Minute
-
-func randomData(ctx context.Context) {
-
-	var wpool wp.Pool = wp.New(5)
-	wpool.Make(5)
-
-	db.CreateTable(ctx, "users", "random_data", []db.Column{
-		{Name: "id", Type: "BIGSERIAL", NotNull: true},
-		{Name: "email", Type: "TEXT", NotNull: true},
-		{Name: "name", Type: "TEXT"},
-		{Name: "created_at", Type: "TIMESTAMP", NotNull: true, Default: "NOW()"},
-		{Name: "updated_at", Type: "TIMESTAMP", NotNull: true, Default: "NOW()"},
-	}, []string{"id"})
-
-l:
-	for {
-		select {
-		case <-ctx.Done():
-			log.Println("Random data generation stopped.")
-			break l
-		default:
-			wpool.Handle(func() {
-				users := rnd.GenerateRandomUsers(rand.Intn(100))
-
-				if len(users) == 0 {
-					users = rnd.GenerateRandomUsers(1)
-				}
-
-				// log.Printf("line: %+v\n", users)
-				db.InsertUsers(ctx, "random_data", "users", users)
-			})
-		}
-	}
-
-	wpool.Wait()
-
-}
+const EVERY_N_HOUR_GENERATE = 2 * time.Hour
 
 func main() {
+	// Create a context with a timeout to ensure the function doesn't run indefinitely
 	ctx, cancel := context.WithTimeout(context.Background(), TIME_WORK)
 	defer cancel()
+	// Create a connection pool to the database
+	pool, err := pgxpool.New(ctx, db.DB_URL)
+	defer pool.Close()
 
-	go randomData(ctx)
+	if err := pool.Ping(ctx); err != nil {
+		log.Fatalf("ping database: %v", err)
+	}
+
+	if err != nil {
+		log.Fatalf("unable to create connection pool: %v", err)
+	}
+
+	// Generate random data and insert it into the database
+	go func() {
+		// Generate random data every N hours
+		for {
+			go rnd.RandomDataUsers(pool, false)
+			time.Sleep(EVERY_N_HOUR_GENERATE)
+		}
+	}()
+
+	data, err := db.GetUsers(
+		pool,
+		"random_data",
+		"users",
+		map[string]string{
+			"dateCol": "updated_at",
+			"start":   "2026-04-04",
+			"end":     "2026-04-04",
+		},
+	)
+
+	fmt.Printf("data: %+v\n", data)
 
 	for {
 		select {

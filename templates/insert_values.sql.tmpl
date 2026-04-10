@@ -1,0 +1,17 @@
+INSERT INTO {{ .Schema }}.{{ .TableName }} (
+{{- range $index, $col := .Columns }}
+    {{- if $index }},{{ end }}
+    {{ $col }}
+{{- end }}
+)
+VALUES
+{{- range $i, $row := .Rows }}
+    {{- if $i }},{{ end }}
+    ({{ $row }})
+{{- end }}
+ON CONFLICT ({{range $i, $v := .PrimaryKey}}{{if $i}},{{end}}{{$v}}{{end}})
+DO UPDATE SET
+    {{- range $index, $col := .UpdateColumns }}
+    {{- if $index }},{{ end }}
+    {{ $col }} = EXCLUDED.{{ $col }}
+    {{- end }};

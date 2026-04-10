@@ -4,34 +4,36 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	rnd "github.com/uladzimirSTR/randomData_API/randomData"
+	obj "github.com/uladzimirSTR/randomData_API/objects"
 )
 
 func GetUsers(
-	ctx context.Context,
 	pool *pgxpool.Pool,
 	schema string,
 	tableName string,
-	args ...any,
+	params map[string]string,
 ) ([]string, error) {
+
 	data := SelectTemplateData{
 		Schema:    schema,
 		TableName: tableName,
-		DateType:  args[0],
-		Start:     args[1],
-		End:       args[2],
+		DateType:  params["dateCol"],
+		Start:     params["start"],
+		End:       params["end"],
+		Limit:     10,
+		Offset:    0,
 	}
 
-	fmt.Printf("%+v\n", data)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
 	query, err := RenderTemplateFromFile("./templates/select_users.sql.tmpl", data)
 	if err != nil {
 		log.Fatalf("render template: %v", err)
 	}
-
-	fmt.Printf("query: %s\n", query)
 
 	rows, err := pool.Query(ctx, query)
 	defer rows.Close()
@@ -43,7 +45,7 @@ func GetUsers(
 	var users []string
 
 	for rows.Next() {
-		var user rnd.User
+		var user obj.User
 		if err := rows.Scan(&user.ID, &user.Email, &user.Name, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			log.Fatalf("row scan failed: %v", err)
 		}

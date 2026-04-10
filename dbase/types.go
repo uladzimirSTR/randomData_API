@@ -15,9 +15,12 @@ type TableTemplateData struct {
 }
 
 type InsertTemplateData struct {
-	Schema    string
-	TableName string
-	Rows      []string
+	Schema        string
+	TableName     string
+	Rows          []string
+	Columns       []string
+	UpdateColumns []string
+	PrimaryKey    []string
 }
 
 type SelectTemplateData struct {
@@ -26,4 +29,6 @@ type SelectTemplateData struct {
 	DateType  any
 	Start     any
 	End       any
+	Limit     int
+	Offset    int
 }

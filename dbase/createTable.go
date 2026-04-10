@@ -19,16 +19,15 @@ func CreateTable(
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	query, err := RenderTemplateFromFile("./templates/create_table.sql.tmpl", TableTemplateData{
-		Schema:     schema,
-		TableName:  table,
-		Columns:    columns,
-		PrimaryKey: primaryKey,
-	})
-
-	if err := pool.Ping(ctx); err != nil {
-		log.Fatalf("ping database: %v", err)
-	}
+	query, err := RenderTemplateFromFile(
+		"./templates/create_table.sql.tmpl",
+		TableTemplateData{
+			Schema:     schema,
+			TableName:  table,
+			Columns:    columns,
+			PrimaryKey: primaryKey,
+		},
+	)
 
 	tag, err := pool.Exec(ctx, query)
 
@@ -37,5 +36,4 @@ func CreateTable(
 	}
 
 	fmt.Printf("table %s.%s created successfully, affected rows: %d\n", schema, table, tag.RowsAffected())
-
 }

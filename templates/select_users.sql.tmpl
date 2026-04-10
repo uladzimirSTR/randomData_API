@@ -19,3 +19,6 @@ WHERE CAST({{ $dateType }} as DATE) >= '{{ .Start }}'
 WHERE CAST({{ $dateType }} as DATE) <= '{{ .End }}'
 
 {{- end }}
+
+LIMIT {{ .Limit }}
+OFFSET {{ .Offset }};

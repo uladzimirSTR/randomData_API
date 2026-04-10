@@ -4,14 +4,16 @@ import (
 	"log"
 	"math/rand"
 	"time"
+
+	obj "github.com/uladzimirSTR/randomData_API/objects"
 )
 
 var currentTime = time.Now()
 
-func GenerateRandomUser() User {
+func GenerateRandomUser() obj.User {
 	name := names[rand.Intn(len(names))]
 
-	return User{
+	return obj.User{
 		ID:        rand.Intn(1_000_000) + rand.Intn(1_000_000) + rand.Intn(1_000_000),
 		Email:     name + "@" + domains[rand.Intn(len(domains))],
 		Name:      name,
@@ -20,8 +22,8 @@ func GenerateRandomUser() User {
 	}
 }
 
-func GenerateRandomUsers(count int) []User {
-	users := make([]User, count)
+func GenerateRandomUsers(count int) []obj.User {
+	users := make([]obj.User, count)
 	for i := 0; i < count; i++ {
 		users[i] = GenerateRandomUser()
 	}

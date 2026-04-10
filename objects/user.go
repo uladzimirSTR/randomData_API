@@ -1,4 +1,4 @@
-package randomdata
+package objects
 
 type User struct {
 	ID        int    `json:"id"`
