@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	db "github.com/uladzimirSTR/randomData_API/dbase"
 	rnd "github.com/uladzimirSTR/randomData_API/randomData"
+	srv "github.com/uladzimirSTR/randomData_API/randomDataServer"
 )
 
 const TIME_WORK = 5 * time.Minute
@@ -39,18 +39,7 @@ func main() {
 		}
 	}()
 
-	data, err := db.GetUsers(
-		pool,
-		"random_data",
-		"users",
-		map[string]string{
-			"dateCol": "updated_at",
-			"start":   "2026-04-04",
-			"end":     "2026-04-04",
-		},
-	)
-
-	fmt.Printf("data: %+v\n", data)
+	srv.RandomDataServer(pool)
 
 	for {
 		select {
