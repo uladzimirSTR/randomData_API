@@ -1,3 +1,5 @@
 # tf state
 postgres/terraform.tfstate
 postgres/terraform.tfstate.backup
+!.env
+!docker/.env
