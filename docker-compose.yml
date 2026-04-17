@@ -1,9 +1,8 @@
-version: "3.8"
-
+---
 services:
-  postgres:
+  postgres-api:
+    container_name: postgres-api
     image: postgres:16
-    container_name: postgres-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: app_db
@@ -13,6 +12,30 @@ services:
       - "6001:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - random_data_api_network
+
+  random-data-api:
+    container_name: random-data-api
+    env_file:
+      - ./docker/.env
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        GO_VERSION: ${GO_VERSION}
+        BUILD_VERSION: ${BUILD_VERSION}
+    restart: unless-stopped
+    ports:
+      - "8080:9909"
+    depends_on:
+      - postgres-api
+    networks:
+      - random_data_api_network
 
 volumes:
   postgres_data:
+
+networks:
+  random_data_api_network:
+    driver: bridge
